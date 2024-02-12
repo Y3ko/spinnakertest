@@ -2,8 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx-deployment
-  labels:
-    app: nginx
+  namespace: default # Spinnaker'ın deploy edeceği namespace
+  annotations:
+    strategy.spinnaker.io/versioned: "false" # Spinnaker'ın her deployda yeni bir version oluşturmasını engeller
+    strategy.spinnaker.io/use-source-capacity: "true" # Kaynak kapasitesini kaynak manifestinden kullanır
+    strategy.spinnaker.io/replace: "true" # Mevcut kaynağı değiştirir
 spec:
   replicas: 1
   selector:
@@ -16,7 +19,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.16.1 # Burada istediğiniz eski sürümü kullanın
+        image: nginx:1.16.1 # NGINX eski sürüm
         ports:
         - containerPort: 80
 
@@ -26,6 +29,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: nginx-service
+  namespace: default
 spec:
   selector:
     app: nginx
@@ -40,13 +44,15 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: nginx-ingress
+  namespace: default
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
 spec:
   rules:
-  - http:
+  - host: "nginx.yekcan.com" # Kullanmak istediğiniz domaine göre düzenleyin
+    http:
       paths:
-      - path: /nginx
+      - path: "/"
         pathType: Prefix
         backend:
           service:
