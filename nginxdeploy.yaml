@@ -1,6 +1,7 @@
 #deneme
 #deneme2
 #deneme3
+#deneme4
 apiVersion: apps/v1
 kind: Deployment
 metadata:
